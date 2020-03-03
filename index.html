@@ -6,7 +6,19 @@
 </head>
 
 <body>
-    The content of the document......
+    <canvas></canvas>
+    
+    <script>
+        let c = document.querySelector("canvas");
+        c.width = 1000;
+        c.height = 700;
+        c.style.backgroundColor = "lightgrey";
+        let ctxt = c.getContext("2d");
+        
+        let player = {x:0, y:0};
+        let harm = {x:200, y:20, width:20, height:20};
+        let benefit = {x:800, y:20, width:20, height:20};
+    </script>
 </body>
 
 </html>
