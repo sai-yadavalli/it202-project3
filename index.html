@@ -28,6 +28,7 @@
             ctx.beginPath();
             ctx.fillStyle = "red";
             ctx.fillRect(harm.x, harm.y, harm.width, harm.height); 
+            ctx.closePath();
             ctx.stroke();
         }
         
@@ -35,6 +36,7 @@
             ctx.beginPath();
             ctx.fillStyle = "green";
             ctx.fillRect(benefit.x, benefit.y, benefit.width, benefit.height); 
+            ctx.closePath();
             ctx.stroke();
         }
         
@@ -42,11 +44,23 @@
             ctx.beginPath();
             ctx.fillStyle = "orange";
             ctx.fillRect(player.x, player.y, player.width, player.height); 
+            ctx.closePath();
             ctx.stroke();
         }
         const draw = () => {
-            harm.y += 10;
-            benefit.y += 10;
+            ctx.clearRect(0,0,c.width,c.height);
+            
+            // Updating coordinates of objects
+            harm.y += 5;
+            benefit.y += 5;
+            
+            // Edge handling
+            if (harm.y >= c.height || benefit.y >= c.height) {
+                harm.y -= c.height;
+                benefit.y -= c.height;
+            }
+            
+            // Draw commands for each object.
             drawHarm(harm.x, harm.y, harm.width, harm.height);
             drawBenefit(benefit.x, benefit.y, benefit.width, benefit.height);
             drawPlayer(player.x, player.y, player.width, player.height)
