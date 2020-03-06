@@ -20,7 +20,7 @@
             width: 100,
             height: 100,
             score: 0,
-            lives: 5
+            lives: 10
         };
         let harm = {
             x: 400,
@@ -137,7 +137,7 @@
                 ctx.fillText("GAME OVER. Press 'R' to restart. I know you have the guts to do so!", 500, 300);
                 document.addEventListener("keydown", (event) => {
                     if(event.code === "KeyR") {
-                        player.lives = 5;
+                        player.lives = 10;
                         player.score = 0;
                         level = 1;
                         playGame();
