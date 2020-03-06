@@ -36,17 +36,17 @@
         };
         const drawHarm = () => {
             let img = new Image(harm.width, harm.height);
-            img.src = "../img/fireball.jpg";
+            img.src = "/img/fireball.jpg";
             ctx.drawImage(img, harm.x, harm.y);
         }
         const drawBenefit = () => {
             let img = new Image(benefit.width, benefit.height);
-            img.src = '../img/health.jpg';
+            img.src = '/img/health.jpg';
             ctx.drawImage(img, benefit.x, benefit.y);
         }
         const drawPlayer = () => {
             let img = new Image(player.width, player.height);
-            img.src = "../img/character.jpg";
+            img.src = "/img/character.jpg";
             ctx.drawImage(img, player.x, player.y);
         }
         let level = 1;
@@ -54,7 +54,7 @@
             // Clear canvas
             ctx.clearRect(0, 0, c.width, c.height);
             let img = new Image(c.width, c.height);
-            img.src = "../img/outer-space.jpg";
+            img.src = "/img/outer-space.jpg";
             ctx.drawImage(img, 0, 0, c.width, c.height);
             // Updating coordinates of harm and benefit objects.
             benefit.y += 5;
