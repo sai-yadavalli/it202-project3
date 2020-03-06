@@ -7,67 +7,142 @@
 
 <body>
     <canvas></canvas>
-
     <script>
         // Create canvas
         let c = document.querySelector("canvas");
         c.width = 1000;
         c.height = 700;
-        c.style.backgroundColor = "lightgrey";
         let ctx = c.getContext("2d");
+         // Create data objects
+        let player = {
+            x: 450,
+            y: 600,
+            width: 100,
+            height: 10,
+            score: 0,
+            lives: 10
+        };
+        let harm = {
+            x: 400,
+            y: 0,
+            width: 50,
+            height: 50
+        };
+        let benefit = {
+            x: 600,
+            y: 0,
+            width: 50,
+            height: 50
+        };
         
-        // Create data objects
-        let player = {x:450, y:600, width:100, height: 10, lives:5, score:0};
-        let harm = {x:400, y:20, width:50, height:50};
-        let benefit = {x:600, y:20, width:50, height:50};
-        
-        let colors = ["red", "green", "blue", "black", "orange", "purple"];
-        let radii = [5,10,25,50];
-        
-        const drawHarm = (x,y,width,height) => {
-            ctx.beginPath();
-            ctx.fillStyle = "red";
-            ctx.fillRect(harm.x, harm.y, harm.width, harm.height); 
-            ctx.closePath();
-            ctx.stroke();
+        const drawHarm = (x, y, width, height) => {
+            let img = new Image(harm.width, harm.height);
+            img.src = "fireball.jpg";
+            ctx.drawImage(img, harm.x, harm.y);
         }
-        
-        const drawBenefit = (x,y,width,height) => {
-            ctx.beginPath();
-            ctx.fillStyle = "green";
-            ctx.fillRect(benefit.x, benefit.y, benefit.width, benefit.height); 
-            ctx.closePath();
-            ctx.stroke();
+        const drawBenefit = (x, y, width, height) => {
+            let img = new Image(benefit.width, benefit.height);
+            img.src = "health.jpg";
+            ctx.drawImage(img, benefit.x, benefit.y);
         }
-        
-        const drawPlayer = (x,y,width,height) => {
+        const drawPlayer = (x, y, width, height) =>  {
             ctx.beginPath();
             ctx.fillStyle = "orange";
-            ctx.fillRect(player.x, player.y, player.width, player.height); 
+            ctx.fillRect(player.x, player.y, player.width, player.height);
             ctx.closePath();
             ctx.stroke();
         }
-        const draw = () => {
-            ctx.clearRect(0,0,c.width,c.height);
+        
+        let level = 1;
+        let collisions = 0;
+        
+        const playGame = () => {
+            // Clear canvas
+            ctx.clearRect(0, 0, c.width, c.height);
+            let img = new Image(c.width, c.height);
+            img.src = "night-time-background.jpg";
+            ctx.drawImage(img, 0, 0, c.width, c.height);
             
-            // Updating coordinates of objects
+            
+            // Updating coordinates of harm and benefit objects.
+            
             harm.y += 5;
             benefit.y += 5;
             
-            // Edge handling
-            if (harm.y >= c.height || benefit.y >= c.height) {
+            // Check edge handling conditions
+            if(player.x < 0) {
+                player.x = 0;
+            }
+        
+            if(player.x >= c.width - player.width) {
+                player.x = c.width - player.width;
+            }
+        
+            if(harm.y >= c.height + harm.height) {
+                // Send harm object back to top of canvas.
                 harm.y -= c.height;
+                
+                // Randomize x-coordinates of harm object.
+                harm.x = Math.floor(Math.random() * (c.width - 200));
+                level += 1;
+                player.score += 1;
+            }
+        
+            if(benefit.y >= c.height + benefit.height) {
+                // Send benefit object back to top of canvas.
                 benefit.y -= c.height;
+                
+                // Randomize x-coordinates of benefit object.
+                benefit.x = Math.floor(Math.random() * (c.width - 200));
+                level += 1;
+                player.score += 1;
             }
             
+            // Check for collision between player and harm objects.
+            if(player.x < harm.x + harm.width && player.x + player.width > harm.x && harm.y + harm.height == player.y) {
+                collisions += 1;
+                
+                // Randomize x-coordinates of harm object.
+                harm.x = Math.floor(Math.random() * (c.width - 200));
+                harm.y -= c.height;
+            }
+        
+            // Check for collision between player and benefit objects.
+            if(player.x < benefit.x + harm.width && player.x + player.width > benefit.x && 
+               benefit.y + benefit.height == player.y) {
+                collisions += 1;
+                
+                // Randomize x-coordinates of benefit object.
+                benefit.x = Math.floor(Math.random() * (c.width - 200));
+                benefit.y -= c.height;
+            }
+        
+            // Display level, score, and lives at top of canvas.
+            ctx.font = "30px Comic Sans MS";
+            ctx.fillStyle = "red";
+            ctx.textAlign = "center";
+            ctx.fillText("level: " + level, 100, 50);
+            ctx.fillText("score: " + player.score, 900, 50);
+            ctx.fillText("lives: " + player.lives, 900, 100);
+            ctx.fillText("collisions: " + collisions, 100, 100);
+            
             // Draw commands for each object.
+            drawPlayer(player.x, player.y, player.width, player.height);
             drawHarm(harm.x, harm.y, harm.width, harm.height);
             drawBenefit(benefit.x, benefit.y, benefit.width, benefit.height);
-            drawPlayer(player.x, player.y, player.width, player.height)
-            window.requestAnimationFrame(draw);
+            
+            // if lives > 0:
+            window.requestAnimationFrame(playGame);
+            // else -> display game over message
         }
         
-        draw()
+        playGame();
+        
+        // Keydown event listener to move player sideways.
+        document.addEventListener("keydown", (event) => {
+            if(event.code === "ArrowLeft") player.x -= 50;
+            if(event.code === "ArrowRight") player.x += 50;
+        });
     </script>
 </body>
 
