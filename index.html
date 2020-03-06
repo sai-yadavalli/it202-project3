@@ -18,9 +18,9 @@
             x: 450,
             y: 600,
             width: 100,
-            height: 10,
+            height: 100,
             score: 0,
-            lives: 10
+            lives: 5
         };
         let harm = {
             x: 400,
@@ -34,89 +34,87 @@
             width: 50,
             height: 50
         };
-        
-        const drawHarm = (x, y, width, height) => {
+        const drawHarm = () => {
             let img = new Image(harm.width, harm.height);
             img.src = "fireball.jpg";
             ctx.drawImage(img, harm.x, harm.y);
         }
-        const drawBenefit = (x, y, width, height) => {
+        const drawBenefit = () => {
             let img = new Image(benefit.width, benefit.height);
             img.src = "health.jpg";
             ctx.drawImage(img, benefit.x, benefit.y);
         }
-        const drawPlayer = (x, y, width, height) =>  {
-            ctx.beginPath();
-            ctx.fillStyle = "orange";
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            ctx.closePath();
-            ctx.stroke();
+        const drawPlayer = () => {
+            let img = new Image(player.width, player.height);
+            img.src = "character.jpg";
+            ctx.drawImage(img, player.x, player.y);
         }
-        
         let level = 1;
-        let collisions = 0;
-        
         const playGame = () => {
             // Clear canvas
             ctx.clearRect(0, 0, c.width, c.height);
             let img = new Image(c.width, c.height);
-            img.src = "night-time-background.jpg";
+            img.src = "outer-space.jpg";
             ctx.drawImage(img, 0, 0, c.width, c.height);
-            
-            
             // Updating coordinates of harm and benefit objects.
-            
-            harm.y += 5;
             benefit.y += 5;
-            
+            if(player.score >= 0 && player.score < 5) level = 1;
+            if(player.score >= 5 && player.score < 10) level = 2;
+            if(player.score >= 10 && player.score < 15) level = 3;
+            if(player.score >= 15 && player.score < 20) level = 4;
+            if(player.score >= 20) level = 5;
+            switch(level) {
+                case 1:
+                    harm.y += 3;
+                    break;
+                case 2:
+                    harm.y += 6;
+                    break;
+                case 3:
+                    harm.y += 9;
+                    break;
+                case 4:
+                    harm.y += 12;
+                    break;
+                default:
+                    harm.y += 15;
+                    break;
+            }
             // Check edge handling conditions
             if(player.x < 0) {
                 player.x = 0;
             }
-        
             if(player.x >= c.width - player.width) {
                 player.x = c.width - player.width;
             }
-        
             if(harm.y >= c.height + harm.height) {
                 // Send harm object back to top of canvas.
                 harm.y -= c.height;
-                
                 // Randomize x-coordinates of harm object.
                 harm.x = Math.floor(Math.random() * (c.width - 200));
-                level += 1;
-                player.score += 1;
             }
-        
             if(benefit.y >= c.height + benefit.height) {
                 // Send benefit object back to top of canvas.
                 benefit.y -= c.height;
-                
                 // Randomize x-coordinates of benefit object.
                 benefit.x = Math.floor(Math.random() * (c.width - 200));
-                level += 1;
-                player.score += 1;
             }
-            
             // Check for collision between player and harm objects.
-            if(player.x < harm.x + harm.width && player.x + player.width > harm.x && harm.y + harm.height == player.y) {
-                collisions += 1;
-                
+            if(harm.x < player.x + player.width && harm.x + harm.width > player.x && harm.y < player.y + player.height && harm.y + harm.height > player.y) {
+                // Decrement player's lives by 1.
+                player.lives -= 1;
                 // Randomize x-coordinates of harm object.
                 harm.x = Math.floor(Math.random() * (c.width - 200));
                 harm.y -= c.height;
             }
-        
             // Check for collision between player and benefit objects.
-            if(player.x < benefit.x + harm.width && player.x + player.width > benefit.x && 
-               benefit.y + benefit.height == player.y) {
-                collisions += 1;
-                
+            if(benefit.x < player.x + player.width && benefit.x + benefit.width > player.x && benefit.y < player.y + player.height && benefit.y + benefit.height > player.y) {
+                // Increment player's score by 1.
+                player.score += 1;
                 // Randomize x-coordinates of benefit object.
                 benefit.x = Math.floor(Math.random() * (c.width - 200));
                 benefit.y -= c.height;
             }
-        
             // Display level, score, and lives at top of canvas.
             ctx.font = "30px Comic Sans MS";
             ctx.fillStyle = "red";
@@ -124,25 +122,61 @@
             ctx.fillText("level: " + level, 100, 50);
             ctx.fillText("score: " + player.score, 900, 50);
             ctx.fillText("lives: " + player.lives, 900, 100);
-            ctx.fillText("collisions: " + collisions, 100, 100);
-            
             // Draw commands for each object.
-            drawPlayer(player.x, player.y, player.width, player.height);
-            drawHarm(harm.x, harm.y, harm.width, harm.height);
-            drawBenefit(benefit.x, benefit.y, benefit.width, benefit.height);
+            drawPlayer();
+            drawHarm();
+            drawBenefit();
             
-            // if lives > 0:
-            window.requestAnimationFrame(playGame);
-            // else -> display game over message
+            if (player.lives > 0)
+                window.requestAnimationFrame(playGame);
+            if (player.lives == 0) {
+                window.cancelAnimationFrame(playGame);
+                ctx.font = "30px Comic Sans MS";
+                ctx.fillStyle = 'yellow';
+                ctx.textAlign = "center";
+                ctx.fillText("GAME OVER. Press 'R' to restart. I know you have the guts to do so!", 500, 300);
+                document.addEventListener("keydown", (event) => {
+                    if(event.code === "KeyR") {
+                        player.lives = 5;
+                        player.score = 0;
+                        level = 1;
+                        playGame();
+                    }
+                });
+            }    
         }
         
-        playGame();
+        const displayInstructions = () => {
+            ctx.font = "25px Comic Sans MS";
+            ctx.textAlign = "center";
+            ctx.fillRect(0,0,c.width,c.height);
+            ctx.fillStyle = 'lightgrey';
+            ctx.fillText("Hi, welcome to the scrolling game: 'Scrolling through Outer Space!'", 500, 80);
+            ctx.fillText("INSTRUCTIONS:", 500, 160);
+            ctx.fillText("1. Move sideways using the left and right keys on the keyboard.", 500, 200);
+            ctx.fillText("2. You start with a total of 5 lives.", 500, 240);
+            ctx.fillText("3. Pick up health packs to increase your score by 1.", 500, 280);
+            ctx.fillText("4. Colliding with a fireball results in losing a life.", 500, 320);
+            ctx.fillText("5. Don't lose all your lives otherwise the game is over!", 500, 360);
+            ctx.fillText("6. The levels increase by higher difficulty as your score increases!", 500, 400);
+            ctx.fillText("What are you waiting for?!", 500, 550);
+            ctx.fillText("Press 'SPACE' to start the game!", 500, 600);
+        }
+        
+        displayInstructions();
+        
+        document.addEventListener("keydown", (event) => {
+            if(event.code === "Space") playGame();
+        });
+        
         
         // Keydown event listener to move player sideways.
         document.addEventListener("keydown", (event) => {
             if(event.code === "ArrowLeft") player.x -= 50;
             if(event.code === "ArrowRight") player.x += 50;
         });
+        
+        
     </script>
 </body>
 
